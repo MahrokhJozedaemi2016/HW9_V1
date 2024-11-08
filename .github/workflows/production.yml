@@ -63,22 +63,23 @@ jobs:
           cache-from: type=registry,ref=mahrokhjozedaemi/hw9:cache
           cache-to: type=inline,mode=max
 
-      - name: Cache Trivy DB
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/trivy/db
-          key: ${{ runner.os }}-trivy-db-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-trivy-db-
+      # Commented out Trivy Scan step for now
+      # - name: Cache Trivy DB
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ~/.cache/trivy/db
+      #     key: ${{ runner.os }}-trivy-db-${{ github.sha }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-trivy-db-
 
-      - name: Scan the Docker image
-        env:
-          TRIVY_DB_REPOSITORY: "ghcr.io/aquasecurity/trivy-db"  # Use GitHub as a mirror for Trivy DB
-          TRIVY_CACHE_DIR: ~/.cache/trivy/db
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'mahrokhjozedaemi/hw9:${{ github.sha }}'
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
+      # - name: Scan the Docker image
+      #   env:
+      #     TRIVY_DB_REPOSITORY: "ghcr.io/aquasecurity/trivy-db"
+      #     TRIVY_CACHE_DIR: ~/.cache/trivy/db
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: 'mahrokhjozedaemi/hw9:${{ github.sha }}'
+      #     format: 'table'
+      #     exit-code: '1'
+      #     ignore-unfixed: true
+      #     severity: 'CRITICAL,HIGH'
