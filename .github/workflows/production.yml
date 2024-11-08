@@ -73,6 +73,7 @@ jobs:
 
       - name: Scan the Docker image
         env:
+          TRIVY_DB_REPOSITORY: "ghcr.io/aquasecurity/trivy-db"  # Use GitHub as a mirror for Trivy DB
           TRIVY_CACHE_DIR: ~/.cache/trivy/db
         uses: aquasecurity/trivy-action@master
         with:
