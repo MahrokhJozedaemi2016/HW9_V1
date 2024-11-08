@@ -60,7 +60,7 @@ jobs:
           push: true
           tags: mahrokhjozedaemi/hw9:${{ github.sha }} # Uses the Git SHA for tagging
           platforms: linux/amd64,linux/arm64 # Multi-platform support
-          cache-from: type=registry,ref=kaw393939/devops_demo:cache
+          cache-from: type=registry,ref=mahrokhjozedaemi/hw9:cache
           cache-to: type=inline,mode=max
           
       - name: Scan the Docker image
