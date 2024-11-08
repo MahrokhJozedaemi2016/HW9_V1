@@ -58,7 +58,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: kaw393939/devops_demo:${{ github.sha }} # Uses the Git SHA for tagging
+          tags: mahrokhjozedaemi/hw9:${{ github.sha }} # Uses the Git SHA for tagging
           platforms: linux/amd64,linux/arm64 # Multi-platform support
           cache-from: type=registry,ref=kaw393939/devops_demo:cache
           cache-to: type=inline,mode=max
