@@ -62,6 +62,15 @@ jobs:
           platforms: linux/amd64,linux/arm64 # Multi-platform support
           cache-from: type=registry,ref=mahrokhjozedaemi/hw9:cache
           cache-to: type=inline,mode=max
+
+      # New step to cache Trivy DB
+      - name: Cache Trivy DB
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy/db
+          key: ${{ runner.os }}-trivy-db
+          restore-keys: |
+            ${{ runner.os }}-trivy-db
           
       - name: Scan the Docker image
         uses: aquasecurity/trivy-action@master
