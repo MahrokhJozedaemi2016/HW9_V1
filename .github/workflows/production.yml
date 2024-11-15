@@ -16,7 +16,7 @@ jobs:
         python-version: [3.10.12]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -44,42 +44,52 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
-      
+
+      - name: Set up QEMU for multi-architecture builds
+        uses: docker/setup-qemu-action@v2
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+        with:
+          install: true
+
       - name: Log in to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: mahrokhjozedaemi/hw9:${{ github.sha }}
+          tags: amanjaswal/homework9:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=mahrokhjozedaemi/hw9:cache
+          cache-from: type=registry,ref=amanjaswal/homework9:cache
           cache-to: type=inline,mode=max
 
-      # Commented out Trivy Scan step for now
-      # - name: Cache Trivy DB
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ~/.cache/trivy/db
-      #     key: ${{ runner.os }}-trivy-db-${{ github.sha }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-trivy-db-
+  scan-docker-image:
+    needs: build-and-push-docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      # - name: Scan the Docker image
-      #   env:
-      #     TRIVY_DB_REPOSITORY: "ghcr.io/aquasecurity/trivy-db"
-      #     TRIVY_CACHE_DIR: ~/.cache/trivy/db
-      #   uses: aquasecurity/trivy-action@master
-      #   with:
-      #     image-ref: 'mahrokhjozedaemi/hw9:${{ github.sha }}'
-      #     format: 'table'
-      #     exit-code: '1'
-      #     ignore-unfixed: true
-      #     severity: 'CRITICAL,HIGH'
+      - name: Cache Trivy database
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/trivy
+          key: cache-trivy-${{ github.run_id }}
+          restore-keys: |
+            cache-trivy-
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+          sudo mv ./bin/trivy /usr/local/bin/
+
+      - name: Scan the Docker image with Trivy
+        run: |
+          trivy image --cache-dir ~/.cache/trivy amanjaswal/homework9:${{ github.sha }}
+        env:
+          TRIVY_CACHE_DIR: ~/.cache/trivy
